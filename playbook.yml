@@ -1,0 +1,12 @@
+---
+- hosts: debian-hosts
+  become: true
+  become_method: su
+  roles:
+    # - role-zabbix-agent
+    # - role-change-banner
+    # - role-change-password
+
+
+
+

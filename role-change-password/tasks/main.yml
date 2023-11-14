@@ -1,0 +1,37 @@
+---
+# tasks file for role-change-password
+- name: permissões de diretório .ssh 
+  ansible.builtin.file:
+    path: "/home/brd/.ssh"
+    state: directory
+    mode: 0755
+
+- name: Copiar chave SSH para o host remoto
+  ansible.builtin.copy:
+    src: "/Users/marcusaloise/Documents/ansible-brd-prod/role-change-password/files/brd_rsa.pub"  
+    dest: "/home/brd/.ssh/authorized_keys"
+    mode: 0644
+
+- name: permissões do arquivo authorized_keys
+  ansible.builtin.file:
+    path: "/home/brd/.ssh/authorized_keys"
+    state: touch
+    mode: 0644
+
+- name: editando file sshd para autenticação de key-pair
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#PubkeyAuthentication yes'
+    line: 'PubkeyAuthentication yes'
+
+- name: editando file sshd para autorização de uso de Key-Pair
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#AuthorizedKeysFile     .ssh/authorized_keys .ssh/authorized_keys2'
+    line: 'AuthorizedKeysFile .ssh/authorized_keys .ssh/authorized_keys2'
+
+- name: Restartando o serviço ssh
+  service:
+    name: sshd
+    enabled: yes
+    state: restarted

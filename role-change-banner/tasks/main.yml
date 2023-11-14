@@ -1,0 +1,34 @@
+---
+# tasks file for role-change-banner
+- name: Update apt package cache
+  apt:
+    update_cache: yes
+
+- name: Configurando o apontamento do banner
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#Banner none'
+    line: 'Banner /etc/banner.txt'
+
+- name: Copiando arquivo do banner no host
+  copy:
+    src: /Users/marcusaloise/Documents/ansible-brd-prod/role-change-banner/files/banner.txt
+    dest: /etc/
+
+- name: Configurando Hostname no arquivo banner
+  lineinfile:
+    path: /etc/banner.txt
+    regexp: '^Host:'
+    line: 'Host: {{ ansible_hostname }}'
+
+- name: Configurando IP no arquivo banner
+  lineinfile:
+    path: /etc/banner.txt
+    regexp: '^IP:'
+    line: "Endereço IP: {{ ansible_default_ipv4.address }}"
+
+- name: Restartando o serviço ssh
+  service:
+    name: sshd
+    enabled: yes
+    state: restarted
